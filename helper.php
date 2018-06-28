@@ -105,12 +105,11 @@ class helper_plugin_twofactoraltemail extends Twofactor_Auth_Module {
 	 * Transmit the message via email to the address on file.
 	 * As a special case, configure the mail settings to send only via text.
 	 */
-	public function transmitMessage($message, $force = false){		
+	public function transmitMessage($subject, $message, $force = false){		
 		if (!$this->canUse()  && !$force) { return false; }
 		$to = $this->_settingGet("email");
 		// Create the email object.
 		$mail = new Mailer();
-		$subject = $conf['title'].' login verification';
 		$mail->to($to);
 		$mail->subject($subject);
 		$mail->setText($message);			
