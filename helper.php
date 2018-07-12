@@ -8,7 +8,7 @@ class helper_plugin_twofactoraltemail extends Twofactor_Auth_Module {
 	 */
     public function canUse($user = null){
 		global $USERINFO;		
-		return ($this->_settingExists("verified", $user) && $this->_settingGet("email", '', $user) != $USERINFO['mail'] && $this->getConf('enable') === 1);
+		return ($this->_settingExists("verified", $user) && (empty($USERINFO) || $this->_settingGet("email", '', $user) != $USERINFO['mail']) && $this->getConf('enable') === 1);
 	}
 	
 	/**
@@ -50,7 +50,7 @@ class helper_plugin_twofactoraltemail extends Twofactor_Auth_Module {
 			$this->_settingDelete("email");
 			// Delete the verified setting.
 			$this->_settingDelete("verified");
-			return true;
+			return 'deleted';
 		}
 		$oldemail = $this->_settingGet("email", '');
 		if ($oldemail) {
