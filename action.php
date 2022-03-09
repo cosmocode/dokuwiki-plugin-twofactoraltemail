@@ -6,7 +6,7 @@ use dokuwiki\plugin\twofactor\Provider;
 /**
  * 2fa provider using an alternative email address
  */
-class helper_plugin_twofactoraltemail extends Provider
+class action_plugin_twofactoraltemail extends Provider
 {
     /** @inheritdoc */
     public function getLabel()
