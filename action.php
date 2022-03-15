@@ -95,10 +95,11 @@ class action_plugin_twofactoraltemail extends Provider
         if (!$to) throw new \Exception('No email set');
 
         // Create the email object.
+        $body = io_readFile($this->localFN('mail'));
         $mail = new Mailer();
         $mail->to($to);
         $mail->subject('Your OTP code');
-        $mail->setText('Your code: ' . $code);
+        $mail->setBody($body, ['CODE' => $code]);
         $result = $mail->send();
         if (!$result) throw new \Exception('Email couldnt be sent');
 
