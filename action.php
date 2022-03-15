@@ -11,7 +11,7 @@ class action_plugin_twofactoraltemail extends Provider
     /** @inheritdoc */
     public function getLabel()
     {
-        return 'Alternative E-Mail Address'; // FIXME localize
+        return $this->getLang('name');
     }
 
     /** @inheritdoc */
@@ -29,13 +29,14 @@ class action_plugin_twofactoraltemail extends Provider
         $verified = $this->settings->get('verified');
 
         if (!$email) {
+            $form->addHTML('<p>'.$this->getLang('intro').'</p>');
             $form->addTextInput('newemail', $this->getLang('email'))->attr('autocomplete', 'off');
         } else {
             if (!$verified) {
                 $form->addHTML('<p>' . $this->getLang('verifynotice') . '</p>');
                 $form->addTextInput('verify', $this->getLang('verifymodule'));
             } else {
-                $form->addHTML('<p>Using email <code>' . hsc($email) . '</code></p>'); // FIXME localize
+                $form->addHTML(sprintf('<p>' . $this->getLang('configured') . '</p>', hsc($email)));
             }
         }
 
@@ -46,20 +47,26 @@ class action_plugin_twofactoraltemail extends Provider
     public function handleProfileForm()
     {
         global $INPUT;
+        global $USERINFO;
 
         if ($INPUT->str('verify')) {
             // verification code given, check the code
             if ($this->checkCode($INPUT->str('verify'))) {
                 $this->settings->set('verified', true);
             } else {
-                msg('Verification failed', -1);
                 $this->settings->delete('email');
             }
         } elseif ($INPUT->str('newemail')) {
-            // new email has been, set init verification
-            $this->settings->set('email', $INPUT->str('newemail'));
+            $newmail = $INPUT->str('newemail');
+            // check that it differs
+            if (strtolower($newmail) == strtolower($USERINFO['mail'])) {
+                msg($this->getLang('notsameemail'), -1);
+                return;
+            }
 
-            // fixme move this to a base function?
+            // new email has been, set init verification
+            $this->settings->set('email', $newmail);
+
             try {
                 $this->initSecret();
                 $code = $this->generateCode();
