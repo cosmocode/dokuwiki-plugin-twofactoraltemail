@@ -11,7 +11,10 @@ class action_plugin_twofactoraltemail extends Provider
     /** @inheritdoc */
     public function getLabel()
     {
-        return $this->getLang('name');
+        $label = $this->getLang('name');
+        $email = $this->settings->get('email');
+        if ($email) $label .= ': ' . $email;
+        return $label;
     }
 
     /** @inheritdoc */
@@ -26,18 +29,13 @@ class action_plugin_twofactoraltemail extends Provider
     public function renderProfileForm(Form $form)
     {
         $email = $this->settings->get('email');
-        $verified = $this->settings->get('verified');
 
         if (!$email) {
             $form->addHTML('<p>' . $this->getLang('intro') . '</p>');
             $form->addTextInput('newemail', $this->getLang('email'))->attr('autocomplete', 'off');
         } else {
-            if (!$verified) {
-                $form->addHTML('<p>' . $this->getLang('verifynotice') . '</p>');
-                $form->addTextInput('verify', $this->getLang('verifymodule'));
-            } else {
-                $form->addHTML(sprintf('<p>' . $this->getLang('configured') . '</p>', hsc($email)));
-            }
+            $form->addHTML('<p>' . $this->getLang('verifynotice') . '</p>');
+            $form->addTextInput('verify', $this->getLang('verifymodule'));
         }
 
         return $form;
@@ -85,24 +83,21 @@ class action_plugin_twofactoraltemail extends Provider
         return $this->getConf('tolerance');
     }
 
-    /**
-     * @inheritdoc
-     * @todo localize
-     */
+    /** @inheritdoc */
     public function transmitMessage($code)
     {
         $to = $this->settings->get('email');
-        if (!$to) throw new \Exception('No email set');
+        if (!$to) throw new \Exception($this->getLang('codesentfail'));
 
         // Create the email object.
         $body = io_readFile($this->localFN('mail'));
         $mail = new Mailer();
         $mail->to($to);
-        $mail->subject('Your OTP code');
+        $mail->subject($this->getLang('subject'));
         $mail->setBody($body, ['CODE' => $code]);
         $result = $mail->send();
-        if (!$result) throw new \Exception('Email couldnt be sent');
+        if (!$result) throw new \Exception($this->getLang('codesentfail'));
 
-        return 'A one time code has been send. Please check your email';
+        return $this->getLang('codesent');
     }
 }
