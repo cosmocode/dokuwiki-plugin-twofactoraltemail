@@ -29,7 +29,7 @@ class action_plugin_twofactoraltemail extends Provider
         $verified = $this->settings->get('verified');
 
         if (!$email) {
-            $form->addHTML('<p>'.$this->getLang('intro').'</p>');
+            $form->addHTML('<p>' . $this->getLang('intro') . '</p>');
             $form->addTextInput('newemail', $this->getLang('email'))->attr('autocomplete', 'off');
         } else {
             if (!$verified) {
@@ -77,6 +77,12 @@ class action_plugin_twofactoraltemail extends Provider
                 $this->settings->delete('email');
             }
         }
+    }
+
+    /** @inheritdoc */
+    public function getTolerance()
+    {
+        return $this->getConf('tolerance');
     }
 
     /**
