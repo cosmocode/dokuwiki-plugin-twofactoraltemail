@@ -1,6 +1,7 @@
 <?php
 
 use dokuwiki\Form\Form;
+use dokuwiki\plugin\twofactor\OtpField;
 use dokuwiki\plugin\twofactor\Provider;
 
 /**
@@ -35,7 +36,7 @@ class action_plugin_twofactoraltemail extends Provider
             $form->addTextInput('newemail', $this->getLang('email'))->attr('autocomplete', 'off');
         } else {
             $form->addHTML('<p>' . $this->getLang('verifynotice') . '</p>');
-            $form->addTextInput('verify', $this->getLang('verifymodule'));
+            $form->addElement(new OtpField('verify'));
         }
 
         return $form;
